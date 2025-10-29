@@ -19,6 +19,7 @@ from .common import (
     normalize_response,
 )
 from .types import Eval, EvalResult, SamplerBase, SingleEvalResult
+from .abcd_grader import extract_abcd
 
 subject2category = {
     "abstract_algebra": "stem",
@@ -104,13 +105,8 @@ class MMLUEval(Eval):
             response_text = sampler_response.response_text
             actual_queried_prompt_messages = sampler_response.actual_queried_message_list
             response_text = normalize_response(response_text)
-            extracted_answer = None
-            for answer_regex in MULTILINGUAL_ANSWER_REGEXES:
-                regex = MULTILINGUAL_ANSWER_PATTERN_TEMPLATE.format(answer_regex)
-                match = re.search(regex, response_text)
-                if match:
-                    extracted_answer = normalize_extracted_answer(match.group(1))
-                    break
+            extracted_answer = extract_abcd(response_text)
+            print('EXTRACTED ANSWER', extracted_answer, 'CORRECT ANSWER', row["Answer"])
             score = 1.0 if extracted_answer == row["Answer"] else 0.0
             html = common.jinja_env.from_string(HTML_JINJA).render(
                 prompt_messages=actual_queried_prompt_messages,

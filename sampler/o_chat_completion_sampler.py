@@ -1,5 +1,8 @@
 import time
 from typing import Any
+import json
+import random
+import os
 
 import openai
 from openai import OpenAI
@@ -19,7 +22,16 @@ class OChatCompletionSampler(SamplerBase):
         model: str = "o1-mini",
     ):
         self.api_key_name = "OPENAI_API_KEY"
-        self.client = OpenAI()
+        # self.client = OpenAI(base_url="http://10.66.1.238:8000/openai/v1")
+        # self.client = OpenAI(base_url="http://10.66.1.237:8000/openai/v1")
+        conductor_ip = os.environ.get("CONDUCTOR_IP")
+        if conductor_ip is not None:
+            print(f"Using conductor IP {conductor_ip}")
+            self.client = OpenAI(base_url=f"http://{conductor_ip}:8000/openai/v1")
+        else:
+            self.client = OpenAI(base_url="http://10.66.219.74:8000/openai/v1")
+        # self.client = OpenAI(base_url="https://api.groq.com/openai/v1")
+        # self.client = OpenAI(base_url="https://api.fireworks.ai/inference/v1")
         # using api_key=os.environ.get("OPENAI_API_KEY")  # please set your API_KEY
         self.model = model
         self.image_format = "url"
@@ -54,8 +66,13 @@ class OChatCompletionSampler(SamplerBase):
                     model=self.model,
                     messages=message_list,
                     reasoning_effort=self.reasoning_effort,
+                    temperature=1.0,
+                    top_p=1.0,
+                    seed=random.randint(0, (1 << 31) - 1),
+                    max_tokens=131072,
                 )
                 content = response.choices[0].message.content
+                print('RESPONSE', json.dumps(content))
                 return SamplerResponse(
                     response_text=content,
                     response_metadata={"usage": response.usage},

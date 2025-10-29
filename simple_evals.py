@@ -7,6 +7,7 @@ import pandas as pd
 
 from . import common
 from .browsecomp_eval import BrowseCompEval
+from .aime_eval import AIME25Eval
 from .drop_eval import DropEval
 from .gpqa_eval import GPQAEval
 from .healthbench_eval import HealthBenchEval
@@ -22,6 +23,8 @@ from .sampler.chat_completion_sampler import (
 )
 from .sampler.claude_sampler import ClaudeCompletionSampler, CLAUDE_SYSTEM_MESSAGE_LMSYS
 from .sampler.o_chat_completion_sampler import OChatCompletionSampler
+from .sampler.other_chat_completion_sampler import OtherChatCompletionSampler
+from .sampler.groq_chat_completion_sampler import GroqChatCompletionSampler
 from .sampler.responses_sampler import ResponsesSampler
 from .simpleqa_eval import SimpleQAEval
 
@@ -98,6 +101,28 @@ def main():
             reasoning_model=True,
             reasoning_effort="low",
         ),
+        # Default == Medium
+        "emberglow-small": ResponsesSampler(
+            model="o4-mini-2025-04-16",
+            reasoning_model=True,
+        ),
+        "emberglow-small_high": ResponsesSampler(
+            model="o4-mini-2025-04-16",
+            reasoning_model=True,
+            reasoning_effort="high",
+        ),
+        "emberglow-small_low": ResponsesSampler(
+            model="o4-mini-2025-04-16",
+            reasoning_model=True,
+            reasoning_effort="low",
+        ),
+        "reference-small_low": ResponsesSampler(
+            model="o4-mini-2025-04-16",
+            temperature=1.0,
+            max_tokens=131072,
+            reasoning_model=True,
+            reasoning_effort="low",
+        ),
         "o1-pro": ResponsesSampler(
             model="o1-pro",
             reasoning_model=True,
@@ -129,6 +154,60 @@ def main():
         ),
         "o3-mini_low": OChatCompletionSampler(
             model="o3-mini",
+            reasoning_effort="low",
+        ),
+        # Default == Medium
+        "emberglow-small": OChatCompletionSampler(
+            model="emberglow/small",
+        ),
+        "emberglow-small_high": OChatCompletionSampler(
+            model="emberglow/small",
+            reasoning_effort="high",
+        ),
+        "emberglow-small_low": OChatCompletionSampler(
+            model="emberglow/small",
+            reasoning_effort="low",
+        ),
+        # Default == Medium
+        "emberglow-large": OChatCompletionSampler(
+            model="emberglow/large",
+        ),
+        "emberglow-large_high": OChatCompletionSampler(
+            model="emberglow/large",
+            reasoning_effort="high",
+        ),
+        "emberglow-large_low": OChatCompletionSampler(
+            model="emberglow/large",
+            reasoning_effort="low",
+        ),
+        "gpt-oss-120b_low": GroqChatCompletionSampler(
+            model="emberglow/large",
+            reasoning_effort="low",
+        ),
+        "gpt-oss-120b_high": GroqChatCompletionSampler(
+            model="openai/gpt-oss-120b",
+            reasoning_effort="high",
+        ),
+        "gpt-oss-20b_low": GroqChatCompletionSampler(
+            model="openai/gpt-oss-20b",
+            reasoning_effort="low",
+        ),
+        "fireworks-large_low": OtherChatCompletionSampler(
+            model="accounts/fireworks/models/gpt-oss-120b",
+            # model="openai/gpt-oss-120b",
+            reasoning_effort="low",
+        ),
+        "vllm-large_low": OtherChatCompletionSampler(
+            model="openai/gpt-oss-120b",
+            reasoning_effort="low",
+        ),
+        "fireworks-small_low": OtherChatCompletionSampler(
+            model="accounts/fireworks/models/gpt-oss-20b",
+            # model="openai/gpt-oss-120b",
+            reasoning_effort="low",
+        ),
+        "together-large_low": OtherChatCompletionSampler(
+            model="openai/gpt-oss-120b",
             reasoning_effort="low",
         ),
         # GPT-4.1 models
@@ -272,6 +351,11 @@ def main():
                     equality_checker=equality_checker,
                     num_examples=num_examples,
                     n_repeats=1 if debug_mode else args.n_repeats or 10,
+                )
+            case "aime2025":
+                return AIME25Eval(
+                    n_repeats=1 if debug_mode else args.n_repeats or 10,
+                    num_examples=num_examples,
                 )
             case "gpqa":
                 return GPQAEval(

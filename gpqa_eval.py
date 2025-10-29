@@ -12,6 +12,7 @@ import pandas
 from . import common
 from .common import ANSWER_PATTERN_MULTICHOICE, HTML_JINJA, format_multichoice_question
 from .types import Eval, EvalResult, MessageList, SamplerBase, SingleEvalResult
+from .abcd_grader import extract_abcd
 
 
 class GPQAEval(Eval):
@@ -58,6 +59,8 @@ class GPQAEval(Eval):
             actual_queried_prompt_messages = sampler_response.actual_queried_message_list
             match = re.search(ANSWER_PATTERN_MULTICHOICE, response_text)
             extracted_answer = match.group(1) if match else None
+            extracted_answer = extract_abcd(response_text)
+            print('EXTRACTED ANSWER', extracted_answer, 'CORRECT ANSWER', correct_answer)
             score = 1.0 if extracted_answer == correct_answer else 0.0
             html = common.jinja_env.from_string(HTML_JINJA).render(
                 prompt_messages=actual_queried_prompt_messages,
